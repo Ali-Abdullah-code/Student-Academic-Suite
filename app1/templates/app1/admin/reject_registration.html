@@ -1,0 +1,222 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Reject Student Registration - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Reject Student Registration</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="form-card">
+        <!-- Student Info -->
+        <div class="info-section">
+            <h2>Student Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Name:</label>
+                    <p>{{ registration.first_name }} {{ registration.last_name }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Email:</label>
+                    <p>{{ registration.email }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Phone:</label>
+                    <p>{{ registration.phone|default:"Not provided" }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Registration Date:</label>
+                    <p>{{ registration.created_at|date:"M d, Y g:i A" }}</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Rejection Form -->
+        <form method="POST" class="rejection-form">
+            {% csrf_token %}
+
+            <h2>Provide Rejection Reason</h2>
+            
+            <div class="warning-box">
+                <p><strong>⚠️ Warning:</strong> This action cannot be undone. The student will be notified of the rejection via email.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="reason">Reason for Rejection *</label>
+                <textarea id="reason" 
+                          name="reason" 
+                          class="form-control form-textarea"
+                          placeholder="Explain why this registration is being rejected..."
+                          required
+                          rows="5"></textarea>
+                <small class="help-text">This reason will be sent to the student in the rejection email</small>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-danger">Reject Registration</button>
+                <a href="{% url 'manage_student_registrations' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .content-section {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        padding: 2rem;
+    }
+
+    .info-section {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #E2E8F0;
+    }
+
+    .info-section h2 {
+        color: #0F172A;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-item label {
+        font-weight: 600;
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-item p {
+        color: #0F172A;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .warning-box {
+        background-color: #FEF3C7;
+        border-left: 4px solid #F59E0B;
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+    }
+
+    .warning-box p {
+        color: #92400E;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .rejection-form h2 {
+        color: #0F172A;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #0F172A;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-textarea {
+        resize: vertical;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .help-text {
+        display: block;
+        color: #64748B;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        text-align: center;
+        font-family: inherit;
+    }
+
+    .btn-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #DC2626;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

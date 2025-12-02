@@ -1,0 +1,353 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Configure Grading - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <div class="course-header">
+            <h2>{{ course.code }} - {{ course.name }}</h2>
+            <p class="course-semester">{{ course.semester }}</p>
+        </div>
+
+        <form method="post" class="grading-form">
+            {% csrf_token %}
+            
+            <div class="form-section">
+                <h3 class="section-title">Grading Scheme Configuration</h3>
+                <p class="help-text">Configure the percentage weightage for different assessment components. Total must equal 100%.</p>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_assignment_percentage">Assignment %</label>
+                        <div class="input-group">
+                            <input type="number" id="id_assignment_percentage" name="assignment_percentage" 
+                                   class="form-control grade-input" min="0" max="100" 
+                                   value="{{ form.assignment_percentage.value }}" required>
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_quiz_percentage">Quiz %</label>
+                        <div class="input-group">
+                            <input type="number" id="id_quiz_percentage" name="quiz_percentage" 
+                                   class="form-control grade-input" min="0" max="100" 
+                                   value="{{ form.quiz_percentage.value }}" required>
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="id_midterm_percentage">Midterm %</label>
+                        <div class="input-group">
+                            <input type="number" id="id_midterm_percentage" name="midterm_percentage" 
+                                   class="form-control grade-input" min="0" max="100" 
+                                   value="{{ form.midterm_percentage.value }}" required>
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="id_final_percentage">Final %</label>
+                        <div class="input-group">
+                            <input type="number" id="id_final_percentage" name="final_percentage" 
+                                   class="form-control grade-input" min="0" max="100" 
+                                   value="{{ form.final_percentage.value }}" required>
+                            <span class="input-suffix">%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="total-display">
+                    <span>Total:</span>
+                    <span id="totalPercentage" class="total-value">100</span>%
+                </div>
+            </div>
+
+            {% if form.non_field_errors %}
+            <div class="error-box">
+                {% for error in form.non_field_errors %}
+                <p>{{ error }}</p>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Grading Scheme</button>
+                <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+
+        <div class="grade-reference">
+            <h3 class="section-title">Grade Reference</h3>
+            <div class="grade-table">
+                <div class="grade-row">
+                    <span class="grade-letter">A</span>
+                    <span class="grade-range">90-100%</span>
+                </div>
+                <div class="grade-row">
+                    <span class="grade-letter">B</span>
+                    <span class="grade-range">80-89%</span>
+                </div>
+                <div class="grade-row">
+                    <span class="grade-letter">C</span>
+                    <span class="grade-range">70-79%</span>
+                </div>
+                <div class="grade-row">
+                    <span class="grade-letter">D</span>
+                    <span class="grade-range">60-69%</span>
+                </div>
+                <div class="grade-row">
+                    <span class="grade-letter">F</span>
+                    <span class="grade-range">Below 60%</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        padding: 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .course-header {
+        background: linear-gradient(135deg, #37B7C3 0%, #249AA5 100%);
+        color: white;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .course-header h2 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.3rem;
+    }
+
+    .course-semester {
+        margin: 0;
+        opacity: 0.9;
+        font-size: 0.9rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #CBD5E1;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+    }
+
+    .help-text {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    label {
+        display: block;
+        color: #0F172A;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .input-group {
+        position: relative;
+        display: flex;
+        align-items: center;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+        background-color: #ffffff;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .input-suffix {
+        position: absolute;
+        right: 12px;
+        color: #64748B;
+        font-weight: 600;
+        pointer-events: none;
+    }
+
+    .total-display {
+        background: #EBF4F6;
+        padding: 1rem;
+        border-radius: 6px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-weight: 600;
+        color: #0F172A;
+        margin-bottom: 1.5rem;
+    }
+
+    .total-value {
+        font-size: 1.3rem;
+        color: #37B7C3;
+    }
+
+    .total-display.invalid .total-value {
+        color: #EF4444;
+    }
+
+    .error-box {
+        background: #FEE2E2;
+        border: 1px solid #FECACA;
+        color: #DC2626;
+        padding: 1rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    .grade-reference {
+        margin-top: 2rem;
+        padding-top: 2rem;
+        border-top: 1px solid #CBD5E1;
+    }
+
+    .grade-table {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .grade-row {
+        display: grid;
+        grid-template-columns: 50px 1fr;
+        gap: 1rem;
+        padding: 0.75rem;
+        background: #EBF4F6;
+        border-radius: 6px;
+        align-items: center;
+    }
+
+    .grade-letter {
+        font-weight: 700;
+        font-size: 1.2rem;
+        color: #37B7C3;
+        text-align: center;
+    }
+
+    .grade-range {
+        color: #0F172A;
+        font-weight: 500;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const inputs = document.querySelectorAll('.grade-input');
+        const totalDisplay = document.getElementById('totalPercentage');
+        const totalContainer = document.querySelector('.total-display');
+
+        function updateTotal() {
+            let total = 0;
+            inputs.forEach(input => {
+                total += parseInt(input.value) || 0;
+            });
+            totalDisplay.textContent = total;
+            
+            if (total === 100) {
+                totalContainer.classList.remove('invalid');
+            } else {
+                totalContainer.classList.add('invalid');
+            }
+        }
+
+        inputs.forEach(input => {
+            input.addEventListener('change', updateTotal);
+            input.addEventListener('input', updateTotal);
+        });
+
+        updateTotal();
+    });
+</script>
+{% endblock %}

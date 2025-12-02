@@ -1,0 +1,191 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}View Attendance - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    {% if attendance_data %}
+    <div class="attendance-cards">
+        {% for item in attendance_data %}
+        <a href="{% url 'view_course_attendance_detail' item.enrollment.id %}" class="attendance-card-link">
+            <div class="attendance-card {% if item.is_low %}low-attendance{% endif %}">
+                <div class="card-header">
+                    <h3 class="course-code">{{ item.course.code }}</h3>
+                    <span class="attendance-badge {% if item.is_low %}low{% endif %}">
+                        {{ item.percentage }}%
+                    </span>
+                </div>
+                <p class="course-name">{{ item.course.name }}</p>
+                <p class="course-instructor">👨‍🏫 {{ item.course.instructor.get_full_name }}</p>
+                
+                {% if item.is_low %}
+                <div class="alert alert-warning">
+                    ⚠️ Your attendance is below 75%. Please contact your instructor.
+                </div>
+                {% endif %}
+                
+                <div class="progress-bar">
+                    <div class="progress-fill" style="width: {{ item.percentage }}%"></div>
+                </div>
+                <p class="progress-text">{{ item.percentage }}% Attended</p>
+                <p class="view-details-text">Click to view details →</p>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-text">No courses yet. Enroll in courses to view attendance.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+    }
+
+    .attendance-cards {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 2rem;
+    }
+
+    .attendance-card-link {
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .attendance-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        border-left: 5px solid #22C55E;
+        transition: transform 0.3s, box-shadow 0.3s;
+        cursor: pointer;
+    }
+
+    .attendance-card.low-attendance {
+        border-left-color: #EF4444;
+    }
+
+    .attendance-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-code {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .attendance-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        background-color: #22C55E;
+        color: white;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .attendance-badge.low {
+        background-color: #EF4444;
+    }
+
+    .course-name {
+        color: #0F172A;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+
+    .course-instructor {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .alert {
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin: 1rem 0;
+        font-size: 0.9rem;
+    }
+
+    .alert-warning {
+        background-color: #FEF3C7;
+        color: #92400E;
+        border: 1px solid #FCD34D;
+    }
+
+    .progress-bar {
+        background-color: #E5E7EB;
+        border-radius: 10px;
+        height: 30px;
+        overflow: hidden;
+        margin: 1rem 0;
+    }
+
+    .progress-fill {
+        background: linear-gradient(90deg, #22C55E 0%, #16A34A 100%);
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: width 0.3s;
+    }
+
+    .attendance-card.low-attendance .progress-fill {
+        background: linear-gradient(90deg, #EF4444 0%, #DC2626 100%);
+    }
+
+    .progress-text {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0;
+        text-align: center;
+    }
+
+    .view-details-text {
+        color: #37B7C3;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 1rem;
+        text-align: center;
+        margin-bottom: 0;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .empty-text {
+        color: #64748B;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}

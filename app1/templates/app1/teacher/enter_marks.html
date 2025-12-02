@@ -1,0 +1,312 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Enter Marks - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Enter Marks</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="form-card">
+        <form method="post" class="marks-form">
+            {% csrf_token %}
+            
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_course">Select Course *</label>
+                    <select id="id_course" name="course" class="form-control" required>
+                        <option value="">-- Choose a Course --</option>
+                        {% for course in courses %}
+                        <option value="{{ course.id }}" {% if selected_course.id == course.id %}selected{% endif %}>{{ course.code }} - {{ course.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_component">Select Component *</label>
+                    <select id="id_component" name="component" class="form-control">
+                        <option value="">-- Choose a Component --</option>
+                        <option value="assignment" {% if selected_component == 'assignment' %}selected{% endif %}>Assignment</option>
+                        <option value="quiz" {% if selected_component == 'quiz' %}selected{% endif %}>Quiz</option>
+                        <option value="midterm" {% if selected_component == 'midterm' %}selected{% endif %}>Midterm</option>
+                        <option value="final" {% if selected_component == 'final' %}selected{% endif %}>Final</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_full_marks">Total Marks (Full Marks)</label>
+                <input type="number" id="id_full_marks" name="full_marks" class="form-control" value="{{ full_marks|default:100 }}" min="1" step="0.01" placeholder="e.g., 100, 50, 10" required>
+            </div>
+
+            <div style="margin-top:1.5rem;">
+                <button type="submit" name="action" value="load" class="btn btn-primary">Load Students</button>
+            </div>
+
+            {% if enrollments_data and selected_course and selected_component %}
+            <div class="marks-table-container">
+                <h3 class="section-title">Enter Marks for {{ selected_component|capfirst }} - {{ selected_course.code }}</h3>
+                <p class="section-subtitle">Full Marks: <strong>{{ full_marks }}</strong></p>
+                <div class="table-responsive">
+                    <table class="marks-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th class="previous-marks-col">Previous Entries</th>
+                                <th class="new-marks-col">New {{ selected_component|capfirst }}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in enrollments_data %}
+                            <tr>
+                                <td class="student-name">{{ item.student_name }}</td>
+                                <td class="student-email">{{ item.student_email }}</td>
+                                <td class="previous-marks-col">
+                                    {% if item.previous_marks %}
+                                        <div class="marks-list">
+                                            {% for mark in item.previous_marks %}
+                                                <span class="mark-badge">
+                                                    {{ selected_component|capfirst }} #{{ mark.component_number }}: 
+                                                    <strong>{{ mark.marks_obtained }}/{{ mark.full_marks }}</strong> 
+                                                    ({{ mark.percentage|floatformat:1 }}%)
+                                                </span>
+                                            {% endfor %}
+                                        </div>
+                                    {% else %}
+                                        <span class="text-muted">No previous entries</span>
+                                    {% endif %}
+                                </td>
+                                <td class="new-marks-col">
+                                    <input type="number" name="marks_{{ item.enrollment.id }}" class="form-control marks-field" min="0" step="0.01" placeholder="Enter marks" max="{{ full_marks|default:100 }}">
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" name="action" value="save" class="btn btn-primary">Save Marks</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+            {% else %}
+            <div style="background:#FEF3C7; color:#92400E; padding:1rem; border-radius:6px; margin-top:1rem;">
+                {% if selected_course and not selected_component %}
+                    <p>Please select a component to enter marks.</p>
+                {% elif not selected_course %}
+                    <p>Select a course and component, then click "Load Students" to enter marks.</p>
+                {% else %}
+                    <p>No students enrolled in this course.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 0;
+    }
+
+    label {
+        display: block;
+        color: #0F172A;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 2rem 0 0.5rem 0;
+    }
+
+    .section-subtitle {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .marks-table-container {
+        margin-top: 2rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .marks-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .marks-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+        font-size: 0.9rem;
+    }
+
+    .marks-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+        vertical-align: top;
+    }
+
+    .marks-table tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .student-name {
+        font-weight: 600;
+        white-space: nowrap;
+    }
+
+    .student-email {
+        color: #64748B;
+        font-size: 0.9rem;
+        white-space: nowrap;
+    }
+
+    .previous-marks-col {
+        width: 35%;
+        min-width: 300px;
+    }
+
+    .new-marks-col {
+        text-align: center;
+        width: 150px;
+    }
+
+    .marks-list {
+        display: flex;
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+
+    .mark-badge {
+        background-color: #E0F2FE;
+        color: #0369A1;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        display: inline-block;
+        border: 1px solid #7DD3FC;
+    }
+
+    .marks-field {
+        max-width: 120px;
+        margin: 0 auto;
+    }
+
+    .text-muted {
+        color: #94A3B8;
+        font-style: italic;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    @media (max-width: 1024px) {
+        .marks-table th, .marks-table td {
+            padding: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        .previous-marks-col {
+            width: 30%;
+            min-width: 250px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .previous-marks-col {
+            display: none;
+        }
+    }
+</style>
+{% endblock %}

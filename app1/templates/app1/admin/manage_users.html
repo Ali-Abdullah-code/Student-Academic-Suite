@@ -1,0 +1,291 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Manage Users - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Manage Users</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Filters and Actions -->
+    <div class="filters-section">
+        <a href="{% url 'add_user' %}" class="btn btn-primary">+ Add New User</a>
+        
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <select name="role" class="form-control">
+                    <option value="">All Roles</option>
+                    <option value="admin" {% if role_filter == 'admin' %}selected{% endif %}>Administrator</option>
+                    <option value="teacher" {% if role_filter == 'teacher' %}selected{% endif %}>Teacher</option>
+                    <option value="student" {% if role_filter == 'student' %}selected{% endif %}>Student</option>
+                </select>
+            </div>
+            
+            <div class="filter-group">
+                <input type="text" name="search" class="form-control" placeholder="Search by name, email..." value="{{ search_query }}">
+            </div>
+            
+            <button type="submit" class="btn btn-secondary">Filter</button>
+        </form>
+    </div>
+
+    <!-- Users Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Email</th>
+                    <th>Username</th>
+                    <th>Role</th>
+                    <th>Status</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for user in users %}
+                <tr>
+                    <td><strong>{{ user.get_full_name|default:user.username }}</strong></td>
+                    <td>{{ user.email }}</td>
+                    <td>{{ user.username }}</td>
+                    <td><span class="badge badge-{{ user.profile.role }}">{{ user.profile.get_role_display }}</span></td>
+                    <td>
+                        {% if user.profile.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_user' user.id %}" class="btn btn-sm btn-info">Edit</a>
+                            {% if user.profile.is_active %}
+                            <a href="{% url 'deactivate_user' user.id %}" class="btn btn-sm btn-warning" onclick="return confirm('Are you sure?');">Deactivate</a>
+                            {% else %}
+                            <a href="{% url 'activate_user' user.id %}" class="btn btn-sm btn-success">Activate</a>
+                            {% endif %}
+                            <a href="{% url 'delete_user' user.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Permanently delete user {{ user.username|escapejs }}?');">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No users found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .filters-section {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        flex: 1;
+        min-width: 300px;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.7rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #64748B;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background-color: #475569;
+    }
+
+    .btn-info {
+        background-color: #3B82F6;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-info:hover {
+        background-color: #2563EB;
+    }
+
+    .btn-warning {
+        background-color: #F59E0B;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-warning:hover {
+        background-color: #D97706;
+    }
+
+    .btn-danger {
+        background-color: #EF4444;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-danger:hover {
+        background-color: #DC2626;
+    }
+
+    .btn-success {
+        background-color: #22C55E;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-success:hover {
+        background-color: #16A34A;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-admin {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .badge-teacher {
+        background-color: #F59E0B;
+        color: white;
+    }
+
+    .badge-student {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .badge-success {
+        background-color: #22C55E;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #64748B;
+    }
+</style>
+{% endblock %}

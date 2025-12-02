@@ -1,0 +1,301 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Approve Student Registration - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Approve Student Registration</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <div class="form-card">
+        <!-- Student Info -->
+        <div class="info-section">
+            <h2>Student Information</h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <label>Name:</label>
+                    <p>{{ registration.first_name }} {{ registration.last_name }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Email:</label>
+                    <p>{{ registration.email }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Phone:</label>
+                    <p>{{ registration.phone|default:"Not provided" }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Parent Email:</label>
+                    <p>{{ registration.parent_email|default:"Not provided" }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Registration Date:</label>
+                    <p>{{ registration.created_at|date:"M d, Y g:i A" }}</p>
+                </div>
+                <div class="info-item">
+                    <label>Status:</label>
+                    <p>
+                        {% if registration.is_verified %}
+                            <span class="badge badge-success">Email Verified</span>
+                        {% else %}
+                            <span class="badge badge-warning">Pending Email Verification</span>
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Account Creation Form -->
+        <form method="POST" class="create-account-form">
+            {% csrf_token %}
+
+            <h2>Create University Account</h2>
+            
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <div class="form-group">
+                <label for="username">Username (University ID) *</label>
+                <input type="text" 
+                       id="username" 
+                       name="username" 
+                       class="form-control" 
+                       placeholder="e.g., student2024"
+                       value="{{ request.POST.username|default:initial_username }}"
+                       required>
+                <small class="help-text">This will be used to log in to the system</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">University Email Address *</label>
+                <input type="email" 
+                       id="email" 
+                       name="email" 
+                       class="form-control" 
+                       placeholder="e.g., student@university.edu"
+                       value="{{ request.POST.email|default:initial_email }}"
+                       required>
+                <small class="help-text">This should be a university email address</small>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="password">Temporary Password *</label>
+                    <input type="password" 
+                           id="password" 
+                           name="password" 
+                           class="form-control" 
+                           placeholder="Enter password"
+                           required>
+                    <small class="help-text">Student can change this after first login</small>
+                </div>
+
+                <div class="form-group">
+                    <label for="confirm_password">Confirm Password *</label>
+                    <input type="password" 
+                           id="confirm_password" 
+                           name="confirm_password" 
+                           class="form-control" 
+                           placeholder="Confirm password"
+                           required>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create Account & Send Credentials</button>
+                <a href="{% url 'manage_student_registrations' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .content-section {
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        padding: 2rem;
+    }
+
+    .info-section {
+        margin-bottom: 3rem;
+        padding-bottom: 2rem;
+        border-bottom: 2px solid #E2E8F0;
+    }
+
+    .info-section h2 {
+        color: #0F172A;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .info-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .info-item label {
+        font-weight: 600;
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-item p {
+        color: #0F172A;
+        margin: 0;
+        font-size: 1rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        width: fit-content;
+    }
+
+    .badge-success {
+        background-color: #DCFCE7;
+        color: #166534;
+    }
+
+    .create-account-form h2 {
+        color: #0F172A;
+        font-size: 1.3rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .alert {
+        padding: 1rem;
+        border-radius: 6px;
+        margin-bottom: 1.5rem;
+        border-left: 4px solid;
+    }
+
+    .alert-error {
+        background-color: #FEE2E2;
+        color: #991B1B;
+        border-color: #EF4444;
+    }
+
+    .alert-success {
+        background-color: #ECFDF5;
+        color: #065F46;
+        border-color: #10B981;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #0F172A;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        font-family: inherit;
+        box-sizing: border-box;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .help-text {
+        display: block;
+        color: #64748B;
+        font-size: 0.85rem;
+        margin-top: 0.25rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    .form-actions {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        text-align: center;
+        font-family: inherit;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(55, 183, 195, 0.3);
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

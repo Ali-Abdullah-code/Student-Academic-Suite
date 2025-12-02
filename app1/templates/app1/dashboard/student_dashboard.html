@@ -1,0 +1,296 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Student Dashboard - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">My Dashboard</h1>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #37B7C3;">📚</div>
+            <div class="stat-content">
+                <p class="stat-label">Enrolled Courses</p>
+                <p class="stat-value">{{ total_courses }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #249AA5;">✅</div>
+            <div class="stat-content">
+                <p class="stat-label">Average Attendance</p>
+                <p class="stat-value">{{ avg_attendance }}%</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2 class="section-title">Quick Links</h2>
+        <div class="action-grid">
+            <a href="{% url 'view_attendance_student' %}" class="action-btn">
+                <span class="action-icon">✅</span>
+                <span class="action-text">Check Attendance</span>
+            </a>
+            <a href="{% url 'view_marks' %}" class="action-btn">
+                <span class="action-icon">📊</span>
+                <span class="action-text">View Marks</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Enrolled Courses -->
+    {% if enrollments %}
+    <div class="courses-section">
+        <h2 class="section-title">My Courses</h2>
+        <div class="courses-grid">
+            {% for enrollment in enrollments %}
+            <div class="course-card">
+                <div class="course-header">
+                    <h3 class="course-code">{{ enrollment.course.code }}</h3>
+                    <span class="course-credits">{{ enrollment.course.credits }} credits</span>
+                </div>
+                <p class="course-name">{{ enrollment.course.name }}</p>
+                <p class="course-instructor">👨‍🏫 {{ enrollment.course.instructor.get_full_name }}</p>
+                <div class="course-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">Attendance:</span>
+                        <span class="stat-value">{{ enrollment.get_attendance_percentage }}%</span>
+                    </div>
+                </div>
+                <div class="course-semester">{{ enrollment.course.semester }}</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-text">You are not enrolled in any courses yet.</p>
+        <p class="empty-text-small">Contact your administrator to add you to courses.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0F172A;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .quick-actions {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #37B7C3 0%, #249AA5 100%);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-align: center;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(55, 183, 195, 0.3);
+    }
+
+    .action-icon {
+        font-size: 1.8rem;
+    }
+
+    .action-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .courses-section {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .courses-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 2rem;
+    }
+
+    .course-card {
+        background: linear-gradient(135deg, #EBF4F6 0%, #ffffff 100%);
+        border: 2px solid #CBD5E1;
+        border-radius: 10px;
+        padding: 1.5rem;
+        transition: transform 0.3s, box-shadow 0.3s, border-color 0.3s;
+    }
+
+    .course-card:hover {
+        transform: translateY(-5px);
+        border-color: #37B7C3;
+        box-shadow: 0 4px 12px rgba(55, 183, 195, 0.2);
+    }
+
+    .course-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-code {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .course-credits {
+        background-color: #37B7C3;
+        color: white;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .course-name {
+        color: #0F172A;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+
+    .course-instructor {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 1rem;
+    }
+
+    .course-stats {
+        background: rgba(255, 255, 255, 0.7);
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+    }
+
+    .stat-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        color: #0F172A;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        color: #37B7C3;
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .course-semester {
+        color: #64748B;
+        font-size: 0.85rem;
+        text-align: right;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .empty-text {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .empty-text-small {
+        color: #64748B;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}

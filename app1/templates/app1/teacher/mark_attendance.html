@@ -1,0 +1,295 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Mark Attendance - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Mark Attendance</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="form-card">
+        <form method="post" class="attendance-form">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_course">Select Course *</label>
+                <select id="id_course" name="course" class="form-control" required>
+                    <option value="">-- Choose a Course --</option>
+                    {% for course in form.course.field.queryset %}
+                    <option value="{{ course.id }}" {% if selected_course.id == course.id %}selected{% endif %}>{{ course.code }} - {{ course.name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="id_date">Attendance Date</label>
+                <input type="date" id="id_date" name="date" class="form-control" value="{{ selected_date|date:'Y-m-d' }}">
+            </div>
+
+            <div style="margin-top:0.5rem; margin-bottom:1rem;">
+                <button type="submit" name="action" value="load_students" class="btn btn-primary">Load Students</button>
+            </div>
+
+            <!-- (debug fields removed) -->
+
+            {% if selected_course and enrollments %}
+            <div class="attendance-table-container">
+                <h3 class="section-title">Mark Attendance for {{ selected_course.code }} - {{ selected_course.name }}</h3>
+                <div class="table-responsive">
+                    <table class="attendance-table">
+                        <thead>
+                            <tr>
+                                <th>Student Name</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                {% if selected_date %}<th>Previous Status ({{ selected_date }})</th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in enrollments %}
+                            <tr>
+                                <td class="student-name">{{ item.student_name }}</td>
+                                <td class="student-email">{{ item.student_email }}</td>
+                                <td class="attendance-status">
+                                    <div class="radio-group">
+                                        <label class="radio-label">
+                                            <input type="radio" name="status_{{ item.enrollment.id }}" value="present" class="radio-input" {% if item.current_attendance == 'present' %}checked{% endif %}>
+                                            <span class="radio-text">✓ Present</span>
+                                        </label>
+                                        <label class="radio-label">
+                                            <input type="radio" name="status_{{ item.enrollment.id }}" value="absent" class="radio-input" {% if item.current_attendance == 'absent' %}checked{% endif %}>
+                                            <span class="radio-text">✗ Absent</span>
+                                        </label>
+                                    </div>
+                                </td>
+                                {% if selected_date %}
+                                <td class="text-center">
+                                    {% if item.previous_attendance %}
+                                        <span class="badge {% if item.previous_attendance == 'present' %}badge-success{% else %}badge-danger{% endif %}">{{ item.previous_attendance|upper }}</span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                {% endif %}
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Submit Attendance</button>
+                    <a href="{% url 'dashboard' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </div>
+            {% else %}
+            <div style="background:#FEF3C7; color:#92400E; padding:1rem; border-radius:6px; margin-top:1rem;">
+                {% if selected_course %}
+                    <p>No students enrolled in this course.</p>
+                {% else %}
+                    <p>Select a course and (optionally) a date, then click "Load Students" to load enrolled students or fill a date and click "Submit Attendance" to save.</p>
+                {% endif %}
+            </div>
+            {% endif %}
+        </form>
+    </div>
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    label {
+        display: block;
+        color: #0F172A;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 600;
+        margin: 2rem 0 1.5rem 0;
+    }
+
+    .attendance-table-container {
+        margin-top: 2rem;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .attendance-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .attendance-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .attendance-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .student-name {
+        font-weight: 600;
+    }
+
+    .student-email {
+        color: #64748B;
+        font-size: 0.9rem;
+    }
+
+    .attendance-status {
+        text-align: center;
+    }
+
+    .radio-group {
+        display: flex;
+        gap: 1.5rem;
+        justify-content: center;
+    }
+
+    .radio-label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        cursor: pointer;
+        font-size: 0.9rem;
+        font-weight: 500;
+    }
+
+    .radio-input {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+    }
+
+    .radio-text {
+        font-weight: 600;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+        justify-content: center;
+    }
+
+    .btn {
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 4px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .badge-success {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+
+    .badge-danger {
+        background-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .text-muted {
+        color: #94A3B8;
+    }
+
+    .text-center {
+        text-align: center;
+    }</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var dateInput = document.getElementById('id_date');
+        if (dateInput) {
+            // Only set today's date if server didn't provide a selected_date
+            if (!dateInput.value) {
+                var today = new Date().toISOString().split('T')[0];
+                dateInput.value = today;
+            }
+        }
+        // No client-side debug handlers — keep original minimal behavior
+    });
+</script>
+{% endblock %}

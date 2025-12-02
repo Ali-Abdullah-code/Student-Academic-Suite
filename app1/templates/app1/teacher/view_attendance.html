@@ -1,0 +1,211 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Attendance - {{ page_title }} - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="course-info">
+        <h2 class="course-title">{{ course.code }} - {{ course.name }}</h2>
+        <p class="course-details">{{ course.semester }} | {{ course.enrollments.count }} Students</p>
+    </div>
+
+    {% if attendance_data %}
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Email</th>
+                    <th>Attendance %</th>
+                    <th>Total Classes</th>
+                    <th>Present</th>
+                    <th>Absent</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in attendance_data %}
+                <tr>
+                    <td class="student-name">{{ item.student.get_full_name }}</td>
+                    <td class="student-email">{{ item.student.email }}</td>
+                    <td>
+                        <span class="attendance-badge {% if item.percentage < 75 %}low{% endif %}">
+                            {{ item.percentage }}%
+                        </span>
+                    </td>
+                    <td>{{ item.total_classes }}</td>
+                    <td class="badge-success">{{ item.present_count }}</td>
+                    <td>{{ item.absent_count }}</td>
+                    <td>
+                        {% if item.percentage >= 75 %}
+                        <span class="badge badge-success">Good</span>
+                        {% else %}
+                        <span class="badge badge-danger">Low</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <div class="action-buttons" style="margin-top: 2rem; text-align: center;">
+        <a href="{% url 'mark_attendance' %}" class="btn btn-primary">Mark Attendance</a>
+        <a href="{% url 'dashboard' %}" class="btn btn-secondary">Back to Dashboard</a>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-text">No enrollment data for this course.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .course-info {
+        background: linear-gradient(135deg, #37B7C3 0%, #249AA5 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 10px;
+        margin-bottom: 2rem;
+    }
+
+    .course-title {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .course-details {
+        margin: 0;
+        font-size: 0.95rem;
+        opacity: 0.9;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .student-name {
+        font-weight: 600;
+    }
+
+    .student-email {
+        color: #64748B;
+        font-size: 0.9rem;
+    }
+
+    .attendance-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        background-color: #22C55E;
+        color: white;
+        font-weight: 600;
+    }
+
+    .attendance-badge.low {
+        background-color: #EF4444;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #22C55E;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+        margin: 0.5rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .empty-text {
+        color: #64748B;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}

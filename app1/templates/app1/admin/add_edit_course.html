@@ -1,0 +1,186 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}{{ page_title }} - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page_title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        <form method="post" class="form-horizontal">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="id_code">Course Code *</label>
+                <input type="text" id="id_code" name="code" class="form-control" value="{{ form.code.value|default:'' }}" placeholder="e.g., CS101" required maxlength="10">
+                {% if form.code.errors %}<div class="error-message">{{ form.code.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_name">Course Name *</label>
+                <input type="text" id="id_name" name="name" class="form-control" value="{{ form.name.value|default:'' }}" placeholder="e.g., Introduction to Computer Science" required>
+                {% if form.name.errors %}<div class="error-message">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="id_instructor">Instructor</label>
+                <select id="id_instructor" name="instructor" class="form-control">
+                    <option value="">Select Instructor</option>
+                    {% for user in form.instructor.field.queryset %}
+                    <option value="{{ user.id }}" {% if form.instructor.value|slugify == user.id|slugify %}selected{% endif %}>{{ user.get_full_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label for="id_credits">Credits *</label>
+                    <input type="number" id="id_credits" name="credits" class="form-control" value="{{ form.credits.value|default:'3' }}" min="1" max="10" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="id_semester">Semester *</label>
+                    <input type="text" id="id_semester" name="semester" class="form-control" value="{{ form.semester.value|default:'' }}" placeholder="e.g., Fall 2024" required>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="id_description">Description</label>
+                <textarea id="id_description" name="description" class="form-control" rows="4" placeholder="Course description">{{ form.description.value|default:'' }}</textarea>
+            </div>
+
+            <div class="form-group checkbox-group">
+                <label for="id_is_active">
+                    <input type="checkbox" id="id_is_active" name="is_active" {% if form.is_active.value %}checked{% endif %}>
+                    Active Course
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Course</button>
+                <a href="{% url 'manage_courses' %}" class="btn btn-secondary">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    .form-container {
+        padding: 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    label {
+        display: block;
+        color: #0F172A;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control, textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+        background-color: #ffffff;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus, textarea:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    textarea {
+        resize: vertical;
+        font-family: inherit;
+    }
+
+    .error-message {
+        color: #EF4444;
+        font-size: 0.85rem;
+        margin-top: 0.3rem;
+        display: block;
+    }
+
+    .checkbox-group label {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .checkbox-group input[type="checkbox"] {
+        width: auto;
+        margin: 0;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+        flex: 1;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}

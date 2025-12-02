@@ -1,0 +1,390 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Edit Profile - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Edit Profile</h1>
+{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card">
+        {% if is_restricted_user %}
+            <!-- STUDENT/TEACHER VIEW: Password change only -->
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                
+                <div class="info-section">
+                    <p class="info-message">
+                        <strong>Note:</strong> You can only change your password. 
+                        To update other information, contact your administrator.
+                    </p>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Your Account Information (View Only)</h3>
+                    
+                    <div class="form-row">
+                        <div class="info-group">
+                            <label>First Name</label>
+                            <div class="info-field">{{ user.first_name }}</div>
+                        </div>
+
+                        <div class="info-group">
+                            <label>Last Name</label>
+                            <div class="info-field">{{ user.last_name }}</div>
+                        </div>
+                    </div>
+
+                    <div class="info-group">
+                        <label>Email</label>
+                        <div class="info-field">{{ user.email }}</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label>Username</label>
+                        <div class="info-field">{{ user.username }}</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label>Phone Number</label>
+                        <div class="info-field">{{ user.profile.phone|default:"Not provided" }}</div>
+                    </div>
+
+                    <div class="info-group">
+                        <label>Parent Email</label>
+                        <div class="info-field">{{ user.profile.parent_email|default:"Not provided" }}</div>
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Change Password</h3>
+                    <p class="help-text">Leave blank if you don't want to change your password.</p>
+                    
+                    <div class="form-group">
+                        <label for="{{ password_form.password.id_for_label }}">New Password</label>
+                        <input type="password" id="{{ password_form.password.id_for_label }}" name="{{ password_form.password.name }}" 
+                               class="form-control" placeholder="Enter new password (optional)">
+                        {% if password_form.password.errors %}
+                            <span class="error-text">{{ password_form.password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ password_form.confirm_password.id_for_label }}">Confirm Password</label>
+                        <input type="password" id="{{ password_form.confirm_password.id_for_label }}" name="{{ password_form.confirm_password.name }}" 
+                               class="form-control" placeholder="Confirm new password">
+                        {% if password_form.confirm_password.errors %}
+                            <span class="error-text">{{ password_form.confirm_password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    {% if password_form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {{ password_form.non_field_errors.0 }}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                    <a href="{% url 'profile_view' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        {% else %}
+            <!-- ADMIN VIEW: Can edit all fields -->
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                
+                {% if user_form.non_field_errors or profile_form.non_field_errors %}
+                    <div class="alert alert-danger">
+                        {% for error in user_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                        {% for error in profile_form.non_field_errors %}
+                            <p>{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                
+                <div class="form-section">
+                    <h3 class="section-title">Basic Information</h3>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="{{ user_form.first_name.id_for_label }}">First Name</label>
+                            <input type="text" id="{{ user_form.first_name.id_for_label }}" name="{{ user_form.first_name.name }}" 
+                                   class="form-control" value="{{ user_form.first_name.value|default:'' }}">
+                            {% if user_form.first_name.errors %}
+                                <span class="error-text">{{ user_form.first_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+
+                        <div class="form-group">
+                            <label for="{{ user_form.last_name.id_for_label }}">Last Name</label>
+                            <input type="text" id="{{ user_form.last_name.id_for_label }}" name="{{ user_form.last_name.name }}" 
+                                   class="form-control" value="{{ user_form.last_name.value|default:'' }}">
+                            {% if user_form.last_name.errors %}
+                                <span class="error-text">{{ user_form.last_name.errors.0 }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ user_form.email.id_for_label }}">Email</label>
+                        <input type="email" id="{{ user_form.email.id_for_label }}" name="{{ user_form.email.name }}" 
+                               class="form-control" value="{{ user_form.email.value|default:'' }}" required>
+                        {% if user_form.email.errors %}
+                            <span class="error-text">{{ user_form.email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ user_form.username.id_for_label }}">Username</label>
+                        <input type="text" id="{{ user_form.username.id_for_label }}" name="{{ user_form.username.name }}" 
+                               class="form-control" value="{{ user_form.username.value|default:'' }}" readonly>
+                        <small class="help-text">Username cannot be changed</small>
+                        {% if user_form.username.errors %}
+                            <span class="error-text">{{ user_form.username.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Contact Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="{{ profile_form.phone.id_for_label }}">Phone Number</label>
+                        <input type="tel" id="{{ profile_form.phone.id_for_label }}" name="{{ profile_form.phone.name }}" 
+                               class="form-control" value="{{ profile_form.phone.value|default:'' }}">
+                        {% if profile_form.phone.errors %}
+                            <span class="error-text">{{ profile_form.phone.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ profile_form.parent_email.id_for_label }}">Parent Email</label>
+                        <input type="email" id="{{ profile_form.parent_email.id_for_label }}" name="{{ profile_form.parent_email.name }}" 
+                               class="form-control" value="{{ profile_form.parent_email.value|default:'' }}"
+                               placeholder="For student notifications">
+                        {% if profile_form.parent_email.errors %}
+                            <span class="error-text">{{ profile_form.parent_email.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-section">
+                    <h3 class="section-title">Change Password</h3>
+                    <p class="help-text">Leave blank to keep current password.</p>
+                    
+                    <div class="form-group">
+                        <label for="{{ user_form.password.id_for_label }}">New Password</label>
+                        <input type="password" id="{{ user_form.password.id_for_label }}" name="{{ user_form.password.name }}" 
+                               class="form-control" placeholder="Enter new password (optional)">
+                        {% if user_form.password.errors %}
+                            <span class="error-text">{{ user_form.password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <label for="{{ user_form.confirm_password.id_for_label }}">Confirm Password</label>
+                        <input type="password" id="{{ user_form.confirm_password.id_for_label }}" name="{{ user_form.confirm_password.name }}" 
+                               class="form-control" placeholder="Confirm new password">
+                        {% if user_form.confirm_password.errors %}
+                            <span class="error-text">{{ user_form.confirm_password.errors.0 }}</span>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                    <a href="{% url 'profile_view' %}" class="btn btn-secondary">Cancel</a>
+                </div>
+            </form>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .form-container {
+        padding: 2rem;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .form-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .info-section {
+        margin-bottom: 2rem;
+        padding: 1rem;
+        background-color: #EBF4F6;
+        border-left: 4px solid #37B7C3;
+        border-radius: 6px;
+    }
+
+    .info-message {
+        color: #249AA5;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #CBD5E1;
+    }
+
+    .form-section:last-of-type {
+        border-bottom: none;
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+    }
+
+    .help-text {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0 0 1rem 0;
+        display: block;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .info-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+    }
+
+    label {
+        display: block;
+        color: #0F172A;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+        color: #0F172A;
+        background-color: #ffffff;
+        transition: border-color 0.3s, box-shadow 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #37B7C3;
+        box-shadow: 0 0 0 3px rgba(55, 183, 195, 0.1);
+    }
+
+    .form-control:disabled {
+        background-color: #F1F5F9;
+        cursor: not-allowed;
+        color: #64748B;
+    }
+
+    .info-field {
+        padding: 0.75rem;
+        background-color: #F8FAFC;
+        border: 1px solid #E2E8F0;
+        border-radius: 6px;
+        color: #0F172A;
+        font-size: 0.95rem;
+        min-height: 38px;
+        display: flex;
+        align-items: center;
+    }
+
+    .error-text {
+        color: #EF4444;
+        font-size: 0.85rem;
+        display: block;
+        margin-top: 0.25rem;
+    }
+
+    .alert {
+        padding: 0.75rem 1rem;
+        border-radius: 6px;
+        margin-bottom: 1rem;
+        font-size: 0.95rem;
+    }
+
+    .alert-danger {
+        background-color: #FEE2E2;
+        border: 1px solid #FECACA;
+        color: #DC2626;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+        text-align: center;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    @media (max-width: 768px) {
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}

@@ -1,0 +1,308 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}{{ course.code }} Attendance - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <div class="detail-header">
+        <div class="header-content">
+            <h2 class="course-title">{{ course.code }} - {{ course.name }}</h2>
+            <p class="instructor-info">📚 Instructor: {{ course.instructor.get_full_name }}</p>
+        </div>
+        <a href="{% url 'view_attendance_student' %}" class="btn btn-secondary">← Back to Attendance</a>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <h3 class="stat-label">Attendance Rate</h3>
+            <p class="stat-value {% if attendance_percentage >= 75 %}good{% else %}low{% endif %}">{{ attendance_percentage }}%</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="stat-label">Total Classes</h3>
+            <p class="stat-value">{{ total_classes }}</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="stat-label">Present</h3>
+            <p class="stat-value good">{{ present_count }}</p>
+        </div>
+        <div class="stat-card">
+            <h3 class="stat-label">Absent</h3>
+            <p class="stat-value low">{{ absent_count }}</p>
+        </div>
+    </div>
+
+    {% if attendance_records %}
+    <div class="records-section">
+        <h3 class="section-title">Attendance Records</h3>
+        <div class="table-responsive">
+            <table class="attendance-records-table">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Day</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for record in attendance_records %}
+                    <tr class="record-row {% if record.status == 'present' %}present{% else %}absent{% endif %}">
+                        <td class="date-cell">{{ record.date|date:"d-M-Y" }}</td>
+                        <td class="day-cell">{{ record.date|date:"l" }}</td>
+                        <td class="status-cell">
+                            {% if record.status == 'present' %}
+                            <span class="status-badge present">✓ Present</span>
+                            {% else %}
+                            <span class="status-badge absent">✗ Absent</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% else %}
+    <div class="empty-records">
+        <p class="empty-text">No attendance records yet for this course.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+        max-width: 1000px;
+        margin: 0 auto;
+    }
+
+    .detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        gap: 2rem;
+        flex-wrap: wrap;
+    }
+
+    .header-content {
+        flex: 1;
+    }
+
+    .course-title {
+        color: #0F172A;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .instructor-info {
+        color: #64748B;
+        font-size: 0.95rem;
+        margin: 0;
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        text-align: center;
+        border-top: 4px solid #37B7C3;
+    }
+
+    .stat-label {
+        color: #64748B;
+        font-size: 0.9rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .stat-value {
+        color: #0F172A;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .stat-value.good {
+        color: #22C55E;
+    }
+
+    .stat-value.low {
+        color: #EF4444;
+    }
+
+    .records-section {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0 0 1.5rem 0;
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .attendance-records-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .attendance-records-table thead {
+        background-color: #EBF4F6;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .attendance-records-table th {
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        font-size: 0.95rem;
+    }
+
+    .attendance-records-table tbody tr {
+        border-bottom: 1px solid #E2E8F0;
+        transition: background-color 0.2s;
+    }
+
+    .attendance-records-table tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .record-row.present {
+        border-left: 4px solid #22C55E;
+    }
+
+    .record-row.absent {
+        border-left: 4px solid #EF4444;
+    }
+
+    .attendance-records-table td {
+        padding: 1rem;
+        color: #0F172A;
+        font-size: 0.95rem;
+    }
+
+    .date-cell {
+        font-weight: 600;
+        font-size: 1rem;
+    }
+
+    .day-cell {
+        color: #64748B;
+    }
+
+    .status-cell {
+        text-align: center;
+    }
+
+    .status-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .status-badge.present {
+        background-color: #D1FAE5;
+        color: #065F46;
+    }
+
+    .status-badge.absent {
+        background-color: #FEE2E2;
+        color: #991B1B;
+    }
+
+    .empty-records {
+        text-align: center;
+        padding: 3rem 2rem;
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .empty-text {
+        color: #64748B;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .detail-header {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .course-title {
+            font-size: 1.4rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+
+        .stat-card {
+            padding: 1rem;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+        }
+
+        .records-section {
+            padding: 1rem;
+        }
+
+        .attendance-records-table th,
+        .attendance-records-table td {
+            padding: 0.75rem;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}

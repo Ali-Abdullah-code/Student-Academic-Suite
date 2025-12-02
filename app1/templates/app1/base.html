@@ -1,0 +1,199 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Student Academic Suite{% endblock %}</title>
+    <link rel="stylesheet" href="{% static 'app1/css/style.css' %}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    {% if user.is_authenticated %}
+    <div class="app-container">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <h2 class="sidebar-logo">
+                    <span class="logo-icon">📚</span>
+                    <span class="logo-text">Academic Suite</span>
+                </h2>
+            </div>
+
+            <nav class="sidebar-nav">
+                {% if user.profile.role == 'admin' %}
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Dashboard</h3>
+                        <a href="{% url 'dashboard' %}" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Overview</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Student Registration</h3>
+                        <a href="{% url 'manage_student_registrations' %}" class="nav-link">
+                            <span class="nav-icon">📋</span>
+                            <span class="nav-text">Registration Requests</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">User Management</h3>
+                        <a href="{% url 'manage_users' %}" class="nav-link">
+                            <span class="nav-icon">👥</span>
+                            <span class="nav-text">Manage Users</span>
+                        </a>
+                        <a href="{% url 'add_user' %}" class="nav-link">
+                            <span class="nav-icon">➕</span>
+                            <span class="nav-text">Add User</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Course Management</h3>
+                        <a href="{% url 'manage_courses' %}" class="nav-link">
+                            <span class="nav-icon">📖</span>
+                            <span class="nav-text">Manage Courses</span>
+                        </a>
+                        <a href="{% url 'add_course' %}" class="nav-link">
+                            <span class="nav-icon">➕</span>
+                            <span class="nav-text">Add Course</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Enrollment</h3>
+                        <a href="{% url 'manage_enrollments' %}" class="nav-link">
+                            <span class="nav-icon">📝</span>
+                            <span class="nav-text">Manage Enrollments</span>
+                        </a>
+                        <a href="{% url 'add_enrollment' %}" class="nav-link">
+                            <span class="nav-icon">➕</span>
+                            <span class="nav-text">Enroll Student</span>
+                        </a>
+                    </div>
+
+                {% elif user.profile.role == 'teacher' %}
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Dashboard</h3>
+                        <a href="{% url 'dashboard' %}" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">My Dashboard</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Attendance</h3>
+                        <a href="{% url 'mark_attendance' %}" class="nav-link">
+                            <span class="nav-icon">✅</span>
+                            <span class="nav-text">Mark Attendance</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Marks & Grades</h3>
+                        <a href="{% url 'enter_marks' %}" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">Enter Marks</span>
+                        </a>
+                    </div>
+
+                {% elif user.profile.role == 'student' %}
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Dashboard</h3>
+                        <a href="{% url 'dashboard' %}" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">My Dashboard</span>
+                        </a>
+                    </div>
+
+                    <div class="nav-section">
+                        <h3 class="nav-section-title">Academic</h3>
+                        <a href="{% url 'view_attendance_student' %}" class="nav-link">
+                            <span class="nav-icon">✅</span>
+                            <span class="nav-text">Attendance</span>
+                        </a>
+                        <a href="{% url 'view_marks' %}" class="nav-link">
+                            <span class="nav-icon">📊</span>
+                            <span class="nav-text">My Marks & Grades</span>
+                        </a>
+                    </div>
+                {% endif %}
+            </nav>
+
+            <div class="sidebar-footer">
+                <a href="{% url 'profile_view' %}" class="nav-link">
+                    <span class="nav-icon">⚙️</span>
+                    <span class="nav-text">Settings</span>
+                </a>
+                <a href="{% url 'logout' %}" class="nav-link logout-link">
+                    <span class="nav-icon">🚪</span>
+                    <span class="nav-text">Logout</span>
+                </a>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Top Navigation Bar -->
+            <header class="top-navbar">
+                <div class="navbar-left">
+                    <button class="sidebar-toggle" id="sidebarToggle">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </button>
+                </div>
+
+                <div class="navbar-center">
+                    {% block page_title %}
+                    <h1 class="page-title">Dashboard</h1>
+                    {% endblock %}
+                </div>
+
+                <div class="navbar-right">
+                    <div class="user-menu">
+                        <div class="user-info">
+                            <p class="user-name">{{ user.get_full_name|default:user.username }}</p>
+                            <p class="user-role">{{ user.profile.get_role_display }}</p>
+                        </div>
+                        <div class="user-avatar">
+                            {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <!-- Alerts/Messages -->
+            {% if messages %}
+            <div class="messages-container">
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="alert-close" onclick="this.parentElement.style.display='none';">×</button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <!-- Page Content -->
+            <div class="content-area">
+                {% block content %}{% endblock %}
+            </div>
+
+            <!-- Footer -->
+            <footer class="app-footer">
+                <p>&copy; {% now "Y" %} Student Academic Suite. All rights reserved.</p>
+                <p>Developed by Ali4Code</p>
+            </footer>
+        </main>
+    </div>
+    {% else %}
+        {% block login_content %}{% endblock %}
+    {% endif %}
+
+    <script src="{% static 'app1/js/main.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

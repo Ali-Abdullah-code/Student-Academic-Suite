@@ -1,0 +1,167 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Manage Enrollments - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Manage Enrollments</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Actions -->
+    <div class="actions-section">
+        <a href="{% url 'add_enrollment' %}" class="btn btn-primary">+ Add Enrollment</a>
+    </div>
+
+    <!-- Enrollments Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Enrolled Date</th>
+                    <th>Status</th>
+                    <th>Attendance %</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for enrollment in enrollments %}
+                <tr>
+                    <td>{{ enrollment.student.get_full_name }}</td>
+                    <td><strong>{{ enrollment.course.code }}</strong></td>
+                    <td>{{ enrollment.course.name }}</td>
+                    <td>{{ enrollment.enrolled_date|date:"M d, Y" }}</td>
+                    <td>
+                        {% if enrollment.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <span class="attendance-badge {% if enrollment.get_attendance_percentage < 75 %}low{% endif %}">
+                            {{ enrollment.get_attendance_percentage }}%
+                        </span>
+                    </td>
+                    <td>
+                        <a href="{% url 'delete_enrollment' enrollment.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Unenroll this student?');">Delete</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="7" class="text-center text-muted">No enrollments found.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .actions-section {
+        margin-bottom: 2rem;
+    }
+
+    .btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #22C55E;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .attendance-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        background-color: #22C55E;
+        color: white;
+        font-weight: 600;
+    }
+
+    .attendance-badge.low {
+        background-color: #EF4444;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #64748B;
+    }
+</style>
+{% endblock %}

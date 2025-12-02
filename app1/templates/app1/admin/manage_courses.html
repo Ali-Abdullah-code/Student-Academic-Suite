@@ -1,0 +1,180 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Manage Courses - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Manage Courses</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    <!-- Actions -->
+    <div class="actions-section">
+        <a href="{% url 'add_course' %}" class="btn btn-primary">+ Add New Course</a>
+    </div>
+
+    <!-- Courses Table -->
+    <div class="table-container">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th>Course Code</th>
+                    <th>Course Name</th>
+                    <th>Instructor</th>
+                    <th>Credits</th>
+                    <th>Semester</th>
+                    <th>Students</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for course in courses %}
+                <tr>
+                    <td><strong>{{ course.code }}</strong></td>
+                    <td>{{ course.name }}</td>
+                    <td>{{ course.instructor.get_full_name|default:"Unassigned" }}</td>
+                    <td>{{ course.credits }}</td>
+                    <td>{{ course.semester }}</td>
+                    <td>{{ course.enrollments.count }}</td>
+                    <td>
+                        {% if course.is_active %}
+                        <span class="badge badge-success">Active</span>
+                        {% else %}
+                        <span class="badge badge-danger">Inactive</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <div class="action-buttons">
+                            <a href="{% url 'edit_course' course.id %}" class="btn btn-sm btn-info">Edit</a>
+                            <a href="{% url 'delete_course' course.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete this course?');">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted">No courses found. <a href="{% url 'add_course' %}">Create one</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+        max-width: 1400px;
+        margin: 0 auto;
+    }
+
+    .actions-section {
+        margin-bottom: 2rem;
+    }
+
+    .btn {
+        padding: 0.7rem 1.5rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.3s;
+        display: inline-block;
+        font-size: 0.95rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+    }
+
+    .btn-info {
+        background-color: #3B82F6;
+        color: white;
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-info:hover {
+        background-color: #2563EB;
+    }
+
+    .btn-sm {
+        padding: 0.4rem 0.8rem;
+        font-size: 0.85rem;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #22C55E;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    .text-muted {
+        color: #64748B;
+    }
+
+    a {
+        color: #37B7C3;
+    }
+</style>
+{% endblock %}

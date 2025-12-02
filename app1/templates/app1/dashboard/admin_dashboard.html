@@ -1,0 +1,295 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Admin Dashboard</h1>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Statistics Cards -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #37B7C3;">👥</div>
+            <div class="stat-content">
+                <p class="stat-label">Total Users</p>
+                <p class="stat-value">{{ total_users }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #249AA5;">👨‍🎓</div>
+            <div class="stat-content">
+                <p class="stat-label">Active Students</p>
+                <p class="stat-value">{{ total_students }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #22C55E;">👨‍🏫</div>
+            <div class="stat-content">
+                <p class="stat-label">Active Teachers</p>
+                <p class="stat-value">{{ total_teachers }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #F59E0B;">📖</div>
+            <div class="stat-content">
+                <p class="stat-label">Active Courses</p>
+                <p class="stat-value">{{ total_courses }}</p>
+            </div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-icon" style="background-color: #EF4444;">📝</div>
+            <div class="stat-content">
+                <p class="stat-label">Total Enrollments</p>
+                <p class="stat-value">{{ total_enrollments }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="action-grid">
+            <a href="{% url 'manage_student_registrations' %}" class="action-btn action-btn-highlight">
+                <span class="action-icon">📋</span>
+                <span class="action-text">Student Registration Requests</span>
+            </a>
+            <a href="{% url 'add_user' %}" class="action-btn">
+                <span class="action-icon">➕</span>
+                <span class="action-text">Add New User</span>
+            </a>
+            <a href="{% url 'add_course' %}" class="action-btn">
+                <span class="action-icon">📚</span>
+                <span class="action-text">Create Course</span>
+            </a>
+            <a href="{% url 'add_enrollment' %}" class="action-btn">
+                <span class="action-icon">📋</span>
+                <span class="action-text">Enroll Student</span>
+            </a>
+            <a href="{% url 'manage_users' %}" class="action-btn">
+                <span class="action-icon">👥</span>
+                <span class="action-text">View All Users</span>
+            </a>
+        </div>
+    </div>
+
+    <!-- Recent Users -->
+    {% if recent_users %}
+    <div class="recent-section">
+        <h2 class="section-title">Recent Users</h2>
+        <div class="table-responsive">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Joined</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in recent_users %}
+                    <tr>
+                        <td>{{ user.get_full_name|default:user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td><span class="badge badge-{{ user.profile.role }}">{{ user.profile.get_role_display }}</span></td>
+                        <td>{{ user.date_joined|date:"M d, Y" }}</td>
+                        <td>
+                            {% if user.profile.is_active %}
+                            <span class="badge badge-success">Active</span>
+                            {% else %}
+                            <span class="badge badge-danger">Inactive</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .dashboard-container {
+        padding: 2rem;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 2rem;
+        margin-bottom: 3rem;
+    }
+
+    .stat-card {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        display: flex;
+        gap: 1.5rem;
+        align-items: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .stat-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2rem;
+        color: white;
+    }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin: 0;
+        text-transform: uppercase;
+        font-weight: 600;
+    }
+
+    .stat-value {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #0F172A;
+        margin: 0.5rem 0 0 0;
+    }
+
+    .section-title {
+        color: #0F172A;
+        font-size: 1.5rem;
+        margin-bottom: 1.5rem;
+        font-weight: 600;
+    }
+
+    .quick-actions {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        margin-bottom: 3rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .action-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+    }
+
+    .action-btn {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 1.5rem;
+        background: linear-gradient(135deg, #37B7C3 0%, #249AA5 100%);
+        color: white;
+        border-radius: 8px;
+        text-decoration: none;
+        transition: transform 0.3s, box-shadow 0.3s;
+        text-align: center;
+    }
+
+    .action-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 4px 12px rgba(55, 183, 195, 0.3);
+    }
+
+    .action-icon {
+        font-size: 1.8rem;
+    }
+
+    .action-text {
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .recent-section {
+        background: white;
+        border-radius: 10px;
+        padding: 2rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .table-responsive {
+        overflow-x: auto;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table th {
+        background-color: #EBF4F6;
+        color: #0F172A;
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+        border-bottom: 2px solid #CBD5E1;
+    }
+
+    .data-table td {
+        padding: 1rem;
+        border-bottom: 1px solid #CBD5E1;
+        color: #0F172A;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #EBF4F6;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-admin {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .badge-teacher {
+        background-color: #F59E0B;
+        color: white;
+    }
+
+    .badge-student {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .badge-success {
+        background-color: #22C55E;
+        color: white;
+    }
+
+    .badge-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+</style>
+{% endblock %}

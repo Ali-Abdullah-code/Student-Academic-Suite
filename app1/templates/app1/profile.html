@@ -1,0 +1,225 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}My Profile - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">My Profile</h1>
+{% endblock %}
+
+{% block content %}
+<div class="profile-container">
+    <div class="profile-card">
+        <div class="profile-header">
+            <div class="profile-avatar">
+                {{ user.first_name|first|upper }}{{ user.last_name|first|upper }}
+            </div>
+            <div class="profile-info">
+                <h2 class="profile-name">{{ user.get_full_name|default:user.username }}</h2>
+                <p class="profile-role">{{ profile.get_role_display }}</p>
+                <p class="profile-status {% if profile.is_active %}active{% else %}inactive{% endif %}">
+                    {% if profile.is_active %}Active{% else %}Inactive{% endif %}
+                </p>
+            </div>
+            <a href="{% url 'edit_profile' %}" class="btn btn-primary">Edit Profile</a>
+        </div>
+
+        <div class="profile-details">
+            <div class="detail-group">
+                <h3 class="group-title">Contact Information</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Email</span>
+                    <span class="detail-value">{{ user.email }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Phone</span>
+                    <span class="detail-value">{{ profile.phone|default:"Not provided" }}</span>
+                </div>
+                {% if profile.role == 'student' %}
+                <div class="detail-item">
+                    <span class="detail-label">Parent Email</span>
+                    <span class="detail-value">{{ profile.parent_email|default:"Not provided" }}</span>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="detail-group">
+                <h3 class="group-title">Account Information</h3>
+                <div class="detail-item">
+                    <span class="detail-label">Username</span>
+                    <span class="detail-value">{{ user.username }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Member Since</span>
+                    <span class="detail-value">{{ user.date_joined|date:"M d, Y" }}</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">Last Login</span>
+                    <span class="detail-value">
+                        {% if user.last_login %}
+                            {{ user.last_login|date:"M d, Y H:i" }}
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .profile-container {
+        padding: 2rem;
+        max-width: 800px;
+        margin: 0 auto;
+    }
+
+    .profile-card {
+        background: white;
+        border-radius: 10px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow: hidden;
+    }
+
+    .profile-header {
+        background: linear-gradient(135deg, #37B7C3 0%, #249AA5 100%);
+        color: white;
+        padding: 2rem;
+        display: flex;
+        align-items: center;
+        gap: 2rem;
+    }
+
+    .profile-avatar {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        font-weight: 700;
+        border: 3px solid white;
+    }
+
+    .profile-info {
+        flex: 1;
+    }
+
+    .profile-name {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
+        font-weight: 700;
+    }
+
+    .profile-role {
+        margin: 0 0 0.5rem 0;
+        font-size: 1rem;
+        opacity: 0.9;
+    }
+
+    .profile-status {
+        margin: 0;
+        font-size: 0.9rem;
+        font-weight: 600;
+        display: inline-block;
+        padding: 0.25rem 0.75rem;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 20px;
+    }
+
+    .profile-status.active {
+        background: rgba(34, 197, 94, 0.3);
+    }
+
+    .profile-status.inactive {
+        background: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn {
+        padding: 0.75rem 1.5rem;
+        background: rgba(255, 255, 255, 0.2);
+        border: 2px solid white;
+        color: white;
+        border-radius: 6px;
+        text-decoration: none;
+        cursor: pointer;
+        font-weight: 600;
+        transition: all 0.3s;
+    }
+
+    .btn-primary {
+        background: white;
+        color: #37B7C3;
+        border-color: white;
+    }
+
+    .btn-primary:hover {
+        background: rgba(255, 255, 255, 0.9);
+    }
+
+    .profile-details {
+        padding: 2rem;
+    }
+
+    .detail-group {
+        margin-bottom: 2rem;
+    }
+
+    .detail-group:last-child {
+        margin-bottom: 0;
+    }
+
+    .group-title {
+        color: #0F172A;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #37B7C3;
+    }
+
+    .detail-item {
+        display: grid;
+        grid-template-columns: 150px 1fr;
+        gap: 1rem;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #CBD5E1;
+    }
+
+    .detail-item:last-child {
+        border-bottom: none;
+    }
+
+    .detail-label {
+        color: #64748B;
+        font-weight: 600;
+    }
+
+    .detail-value {
+        color: #0F172A;
+    }
+
+    @media (max-width: 768px) {
+        .profile-header {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .profile-info {
+            text-align: center;
+        }
+
+        .detail-item {
+            grid-template-columns: 1fr;
+            gap: 0.25rem;
+        }
+
+        .detail-label {
+            font-weight: 700;
+        }
+    }
+</style>
+{% endblock %}

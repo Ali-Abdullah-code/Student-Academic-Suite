@@ -1,0 +1,374 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}My Marks & Grades - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">{{ page_title }}</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-wrapper">
+    {% if marks_data %}
+    <div class="marks-grid">
+        {% for item in marks_data %}
+        <div class="marks-card">
+            <div class="card-header">
+                <h3 class="course-code">{{ item.course.code }}</h3>
+                {% if item.result.grade %}
+                <span class="grade-badge grade-{{ item.result.grade }}">{{ item.result.grade }}</span>
+                {% endif %}
+            </div>
+            <p class="course-name">{{ item.course.name }}</p>
+            <p class="course-instructor">👨‍🏫 {{ item.course.instructor.get_full_name }}</p>
+
+            <div class="marks-breakdown">
+                <h4 class="breakdown-title">Marks Breakdown</h4>
+                {% if item.components %}
+                    {% for component, entries in item.components.items %}
+                    <div class="component-section">
+                        <div class="component-header">
+                            <span class="component-name">{{ component|capfirst }}</span>
+                            <span class="entry-count">({{ entries|length }} {% if entries|length == 1 %}entry{% else %}entries{% endif %})</span>
+                        </div>
+                        <div class="component-entries">
+                            {% for entry in entries %}
+                            <div class="entry-item">
+                                <span class="entry-number">{{ component|capfirst }} #{{ entry.number }}</span>
+                                <span class="entry-marks">{{ entry.marks }}/{{ entry.full_marks }}</span>
+                                <span class="entry-percentage">{{ entry.percentage|floatformat:1 }}%</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                    
+                    <!-- Weightage Information -->
+                    {% if item.scheme %}
+                    <div class="weightage-info">
+                        <div class="weightage-title">Weightage Distribution</div>
+                        <div class="weightage-grid">
+                            <div class="weightage-item">
+                                <span class="weightage-label">Assignment</span>
+                                <span class="weightage-percent">{{ item.scheme.assignment_percentage }}%</span>
+                            </div>
+                            <div class="weightage-item">
+                                <span class="weightage-label">Quiz</span>
+                                <span class="weightage-percent">{{ item.scheme.quiz_percentage }}%</span>
+                            </div>
+                            <div class="weightage-item">
+                                <span class="weightage-label">Midterm</span>
+                                <span class="weightage-percent">{{ item.scheme.midterm_percentage }}%</span>
+                            </div>
+                            <div class="weightage-item">
+                                <span class="weightage-label">Final</span>
+                                <span class="weightage-percent">{{ item.scheme.final_percentage }}%</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% else %}
+                    <p class="text-muted" style="margin: 0; font-size: 0.9rem; color: #64748B;">No marks entered yet</p>
+                {% endif %}
+            </div>
+
+            {% if item.has_all_evaluations and item.result %}
+            <div class="result-summary">
+                <div class="total-marks">
+                    <p class="label">Total Marks</p>
+                    <p class="value">{{ item.result.total_marks|floatformat:2 }}/100</p>
+                </div>
+                <div class="final-grade">
+                    <p class="label">Final Grade</p>
+                    <p class="value grade-{{ item.result.grade }}">{{ item.result.grade }}</p>
+                </div>
+            </div>
+            {% elif not item.has_all_evaluations %}
+            <div class="incomplete-notice">
+                <p style="margin: 0; font-size: 0.9rem; color: #92400E; background: #FEF3C7; padding: 0.75rem; border-radius: 6px;">
+                    ⏳ Grade will be displayed once all evaluations are completed.
+                </p>
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="empty-text">No courses or marks yet.</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    .content-wrapper {
+        padding: 2rem;
+    }
+
+    .marks-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
+    }
+
+    .marks-card {
+        background: white;
+        border-radius: 10px;
+        padding: 1.5rem;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .marks-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+    }
+
+    .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+    }
+
+    .course-code {
+        color: #0F172A;
+        font-size: 1.2rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .grade-badge {
+        display: inline-block;
+        padding: 0.4rem 0.8rem;
+        border-radius: 6px;
+        color: white;
+        font-weight: 700;
+        font-size: 1.1rem;
+    }
+
+    .grade-A {
+        background-color: #22C55E;
+    }
+
+    .grade-B {
+        background-color: #3B82F6;
+    }
+
+    .grade-C {
+        background-color: #F59E0B;
+    }
+
+    .grade-D {
+        background-color: #F97316;
+    }
+
+    .grade-F {
+        background-color: #EF4444;
+    }
+
+    .course-name {
+        color: #0F172A;
+        font-size: 1rem;
+        font-weight: 600;
+        margin: 0.5rem 0;
+    }
+
+    .course-instructor {
+        color: #64748B;
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .marks-breakdown {
+        background-color: #EBF4F6;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    .breakdown-title {
+        color: #0F172A;
+        font-size: 0.95rem;
+        font-weight: 600;
+        margin: 0 0 1rem 0;
+    }
+
+    .component-section {
+        margin-bottom: 1rem;
+        background-color: white;
+        border-radius: 6px;
+        padding: 0.75rem;
+        border: 1px solid #CBD5E1;
+    }
+
+    .component-section:last-of-type {
+        margin-bottom: 0;
+    }
+
+    .component-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 0.5rem;
+        padding-bottom: 0.5rem;
+        border-bottom: 2px solid #37B7C3;
+    }
+
+    .component-name {
+        color: #0F172A;
+        font-weight: 700;
+        font-size: 0.95rem;
+        text-transform: capitalize;
+    }
+
+    .entry-count {
+        color: #64748B;
+        font-size: 0.8rem;
+        font-weight: 500;
+    }
+
+    .component-entries {
+        display: flex;
+        flex-direction: column;
+        gap: 0.4rem;
+    }
+
+    .entry-item {
+        display: grid;
+        grid-template-columns: 1fr 0.8fr 0.8fr;
+        gap: 0.5rem;
+        padding: 0.4rem;
+        background-color: #F8FAFC;
+        border-radius: 4px;
+        font-size: 0.85rem;
+    }
+
+    .entry-number {
+        color: #0F172A;
+        font-weight: 600;
+    }
+
+    .entry-marks {
+        color: #37B7C3;
+        font-weight: 700;
+        text-align: center;
+    }
+
+    .entry-percentage {
+        color: #0F172A;
+        font-weight: 600;
+        text-align: center;
+    }
+
+    .weightage-info {
+        margin-top: 1rem;
+        padding-top: 1rem;
+        border-top: 1px solid #CBD5E1;
+        background-color: white;
+        padding: 0.75rem;
+        border-radius: 6px;
+        margin-bottom: 0;
+    }
+
+    .weightage-title {
+        color: #0F172A;
+        font-weight: 700;
+        font-size: 0.85rem;
+        margin-bottom: 0.5rem;
+        text-transform: uppercase;
+    }
+
+    .weightage-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.5rem;
+    }
+
+    .weightage-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.4rem;
+        background-color: #F8FAFC;
+        border-radius: 4px;
+        border-left: 3px solid #37B7C3;
+    }
+
+    .weightage-label {
+        color: #64748B;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: capitalize;
+    }
+
+    .weightage-percent {
+        color: #37B7C3;
+        font-weight: 700;
+        font-size: 0.9rem;
+    }
+
+    .mark-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #CBD5E1;
+    }
+
+    .mark-item:last-child {
+        border-bottom: none;
+    }
+
+    .mark-component {
+        color: #0F172A;
+        font-weight: 500;
+    }
+
+    .mark-value {
+        color: #37B7C3;
+        font-weight: 700;
+        font-size: 0.95rem;
+    }
+
+    .result-summary {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #CBD5E1;
+    }
+
+    .total-marks, .final-grade {
+        text-align: center;
+    }
+
+    .result-summary .label {
+        color: #64748B;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .result-summary .value {
+        color: #0F172A;
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin: 0;
+    }
+
+    .empty-state {
+        background: white;
+        border-radius: 10px;
+        padding: 3rem 2rem;
+        text-align: center;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+    }
+
+    .empty-text {
+        color: #64748B;
+        font-size: 1rem;
+    }
+</style>
+{% endblock %}

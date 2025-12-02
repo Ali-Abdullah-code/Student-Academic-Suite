@@ -1,0 +1,308 @@
+{% extends 'app1/base.html' %}
+{% load static %}
+
+{% block title %}Manage Student Registrations - Student Academic Suite{% endblock %}
+
+{% block page_title %}
+<h1 class="page-title">Student Registration Requests</h1>
+{% endblock %}
+
+{% block content %}
+<div class="content-section">
+    <!-- Filters and Search -->
+    <div class="filter-section">
+        <form method="GET" class="filter-form">
+            <div class="filter-group">
+                <label for="status-filter">Status:</label>
+                <select id="status-filter" name="status" class="form-control">
+                    <option value="">All</option>
+                    <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending Verification</option>
+                    <option value="verified" {% if status_filter == 'verified' %}selected{% endif %}>Email Verified</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="search-query">Search:</label>
+                <input type="text" 
+                       id="search-query" 
+                       name="search" 
+                       placeholder="Search by email, name..." 
+                       value="{{ search_query }}"
+                       class="form-control">
+            </div>
+
+            <button type="submit" class="btn btn-primary">Search</button>
+        </form>
+    </div>
+
+    <div style="margin: .75rem 0; display:flex; align-items:center; gap:1rem;">
+        <div style="color:#334155; font-weight:600;">Results: {{ registrations_count }}</div>
+        <a href="?status=verified" class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.9rem;">Show Verified</a>
+        <a href="?status=pending" class="btn btn-secondary" style="padding:0.4rem 0.75rem; font-size:0.9rem;">Show Pending</a>
+    </div>
+
+    <!-- Registrations Table -->
+    <div class="table-container">
+        {% if registrations %}
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Status</th>
+                        <th>Registration Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for registration in registrations %}
+                        <tr class="{% if not registration.is_verified %}table-row-pending{% else %}table-row-verified{% endif %}">
+                            <td>
+                                <strong>{{ registration.first_name }} {{ registration.last_name }}</strong>
+                            </td>
+                            <td>{{ registration.email }}</td>
+                            <td>{{ registration.phone|default:"Not provided" }}</td>
+                            <td>
+                                {% if registration.is_verified %}
+                                    <span class="badge badge-success">Email Verified</span>
+                                {% else %}
+                                    <span class="badge badge-warning">Pending Email Verification</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ registration.created_at|date:"M d, Y g:i A" }}</td>
+                            <td class="action-buttons">
+                                {% if registration.is_verified %}
+                                    <a href="{% url 'approve_student_registration' registration.id %}" 
+                                       class="btn btn-sm btn-primary" 
+                                       title="Create Account">
+                                        ✓ Approve
+                                    </a>
+                                    {% comment %} <a href="{% url 'add_user' %}?email={{ registration.email|urlencode }}&first_name={{ registration.first_name|urlencode }}&last_name={{ registration.last_name|urlencode }}&role=student&phone={{ registration.phone|urlencode }}&parent_email={{ registration.parent_email|urlencode }}" 
+                                       class="btn btn-sm btn-secondary" 
+                                       title="Add as User">
+                                        ➕ Add as User
+                                    </a> {% endcomment %}
+                                    <a href="{% url 'reject_student_registration' registration.id %}" 
+                                       class="btn btn-sm btn-danger" 
+                                       title="Reject Registration">
+                                        ✕ Reject
+                                    </a>
+                                    {% comment %} <a href="{% url 'delete_student_registration' registration.id %}" 
+                                       class="btn btn-sm btn-danger" 
+                                       title="Delete Registration" onclick="return confirm('Permanently delete this registration?');">
+                                        🗑 Delete
+                                    </a> {% endcomment %}
+                                {% else %}
+                                    <span class="text-muted">Awaiting email verification</span>
+                                    <a href="{% url 'delete_student_registration' registration.id %}" class="btn btn-sm btn-danger" onclick="return confirm('Delete pending registration?');" style="margin-left:.5rem;">Delete</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        {% else %}
+            <div class="empty-state">
+                <p class="empty-icon">📋</p>
+                <p>No student registrations found.</p>
+            </div>
+        {% endif %}
+    </div>
+</div>
+
+<style>
+    .filter-section {
+        background: #f8f9fa;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .filter-form {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: flex-end;
+    }
+
+    .filter-group {
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-group label {
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+        color: #0F172A;
+    }
+
+    .filter-group input,
+    .filter-group select {
+        padding: 0.5rem;
+        border: 1px solid #CBD5E1;
+        border-radius: 6px;
+        font-size: 0.95rem;
+    }
+
+    .table-container {
+        background: white;
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(15, 23, 42, 0.1);
+        overflow: hidden;
+    }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .data-table thead {
+        background: #37B7C3;
+        color: white;
+    }
+
+    .data-table thead th {
+        padding: 1rem;
+        text-align: left;
+        font-weight: 600;
+    }
+
+    .data-table tbody tr {
+        border-bottom: 1px solid #E2E8F0;
+        transition: background-color 0.2s;
+    }
+
+    .data-table tbody tr:hover {
+        background-color: #F8FAFC;
+    }
+
+    .table-row-pending {
+        background-color: #FFFBEA;
+    }
+
+    .table-row-verified {
+        background-color: #F0FDF4;
+    }
+
+    .data-table td {
+        padding: 1rem;
+    }
+
+    .badge {
+        display: inline-block;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .badge-success {
+        background-color: #DCFCE7;
+        color: #166534;
+    }
+
+    .badge-warning {
+        background-color: #FEF3C7;
+        color: #92400E;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    /* Button base styles (shared) */
+    .btn {
+        padding: 0.6rem 1rem;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        transition: all 0.2s;
+        display: inline-block;
+        font-size: 0.9rem;
+    }
+
+    .btn-primary {
+        background-color: #37B7C3;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background-color: #249AA5;
+        transform: translateY(-2px);
+        box-shadow: 0 6px 18px rgba(36,154,165,0.15);
+    }
+
+    .btn-secondary {
+        background-color: #CBD5E1;
+        color: #0F172A;
+    }
+
+    .btn-secondary:hover {
+        background-color: #94A3B8;
+    }
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+
+    .btn-danger {
+        background-color: #EF4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background-color: #DC2626;
+    }
+
+    .text-muted {
+        color: #64748B;
+        font-size: 0.9rem;
+    }
+
+    .empty-state {
+        padding: 3rem 2rem;
+        text-align: center;
+        color: #64748B;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .filter-form {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .filter-group {
+            min-width: auto;
+        }
+
+        .data-table {
+            font-size: 0.9rem;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 0.75rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-sm {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
