@@ -134,7 +134,7 @@ A comprehensive web-based system for managing student attendance and academic re
 
 ```
 Student-Academic-Suite/
-├── StudentAcademicSuite/          # Django project settings
+├── StudentAcademicSuite/         # Django project settings
 │   ├── settings.py               # Main configuration
 │   ├── urls.py                   # URL routing
 │   ├── wsgi.py                   # WSGI configuration
