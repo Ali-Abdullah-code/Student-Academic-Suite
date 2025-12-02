@@ -5,9 +5,7 @@
 **Test Date**: December 1, 2025  
 **Tested Version**: Django 5.1.2  
 **Total Test Cases**: 14  
-**Passed**: 13  
-**Failed**: 1*  
-(*One known limitation: see TC-08)
+**Passed**: 14
 
 ---
 
