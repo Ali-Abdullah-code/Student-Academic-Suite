@@ -54,7 +54,7 @@ A comprehensive web-based system for managing student attendance and academic re
 
 1. **Clone the repository**:
    ```bash
-   git clone https://github.com/f243109-Ali-Abdullah/Student-Academic-Suite.git
+   git clone https://github.com/Ali-Abdullah-Code/Student-Academic-Suite.git
    cd Student-Academic-Suite
    ```
 
